@@ -1,0 +1,6 @@
+{
+  "name": "sonarqube",
+  "version": "2.1.0",
+  "type": "module",
+  "main": ".opencode/plugins/sonarqube.js"
+}

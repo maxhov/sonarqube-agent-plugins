@@ -8,9 +8,9 @@ SonarQube combines deterministic checks with AI-assisted workflows so quality ru
 
 ## What do the plugins include
 
-The Plugin helps agents connect to [SonarQube CLI](https://cli.sonarqube.com/) and [SonarQube MCP Server](https://docs.sonarsource.com/sonarqube-mcp-server) for issue detection, checking project metrics such as test coverage and duplications, fetch dependency risks, etc. Claude Code, Copilot CLI, and Codex integrations (through SonarQube CLI) install agent hooks for secrets scanning and, when entitled, Agentic Analysis.
+The Plugin helps agents connect to [SonarQube CLI](https://cli.sonarqube.com/) and [SonarQube MCP Server](https://docs.sonarsource.com/sonarqube-mcp-server) for issue detection, checking project metrics such as test coverage and duplications, fetch dependency risks, etc. Claude Code, Copilot CLI, and Codex integrations (through SonarQube CLI) install agent hooks for secrets scanning and, when entitled, Agentic Analysis. OpenCode, Cursor, Gemini CLI, and Kiro connect through MCP and skills with no additional hooks required.
 
-How to use: Run `/sonarqube:sonar-integrate` after installation to walk through setup — CLI installation, authentication, and wiring up the MCP Server and hooks. From there, use slash commands like `/sonarqube:sonar-quality-gate` to check quality gates or interact naturally with prompts like "analyze my code for issues," "show open SonarQube findings," or "check my coverage." With Agentic Analysis enabled, verification happens automatically after each edit with no manual invocation required.
+How to use: Run `/sonarqube:sonar-integrate` after installation to walk through setup — CLI installation, authentication, and wiring up the MCP Server and hooks. From there, use slash commands like `/sonarqube:sonar-quality-gate` to check quality gates or interact naturally with prompts like "analyze my code for issues," "show open SonarQube findings," or "check my coverage." In OpenCode, load skills via the `skill` tool (no slash command support). With Agentic Analysis enabled, verification happens automatically after each edit with no manual invocation required.
 
 ## Prerequisites
 
@@ -42,9 +42,9 @@ sonar integrate codex     # Codex: MCP, hooks, secrets scanning, Agentic Analysi
 
 Run these **after** `sonar auth login`. Use the **`/sonarqube:sonar-integrate`** skill in Claude Code if you prefer a guided flow (install/update CLI, login, then integrate).
 
-### Other agents (Cursor, Gemini CLI, Kiro)
+### Other agents (OpenCode, Cursor, Gemini CLI, Kiro)
 
-Each layout includes **MCP configuration** (for example **`mcp.json`**, **`gemini-extension.json`**, or **`kiro-power/mcp.json`**) that runs the **`mcp/sonarqube`** image and **relies on SonarQube CLI** for authentication—the same **`sonar auth login`** session.
+Each layout includes **MCP configuration** (for example **`mcp.json`**, **`gemini-extension.json`**, or **`kiro-power/mcp.json`**) that runs the **`mcp/sonarqube`** image and **relies on SonarQube CLI** for authentication—the same **`sonar auth login`** session. OpenCode auto-injects MCP config from the shared `mcp.json` via its plugin.
 
 ---
 
@@ -57,6 +57,7 @@ Each layout includes **MCP configuration** (for example **`mcp.json`**, **`gemin
 | **GitHub Copilot CLI** | `.github/plugin/` (+ shared `mcp.json`) |
 | **Codex** | `.codex-plugin/` |
 | **Gemini CLI** | `gemini-extension.json`, `GEMINI.md` |
+| **OpenCode** | `.opencode/`, `skills/` (+ shared `mcp.json`) |
 | **Kiro** | `kiro-power/` |
 
 ---
@@ -199,6 +200,28 @@ Same workflows as **[Usage](#usage)** once MCP is connected.
 ## Kiro
 
 **`kiro-power/`** (`POWER.md`, MCP config). **`sonar auth login`**, then enable the power per Kiro’s documentation.
+
+---
+
+## OpenCode
+
+Plugin bundle: **`.opencode/`** — plugin **`sonarqube`** (see **[`.opencode/plugin.json`](.opencode/plugin.json)**).
+
+1. Add the plugin to your `opencode.json` (global or project-level):
+
+   ```json
+   {
+     "plugin": ["sonarqube@git+https://github.com/SonarSource/sonarqube-agent-plugins.git"]
+   }
+   ```
+
+2. Restart OpenCode. The plugin auto-registers all 9 skills, injects MCP config from the shared `mcp.json`, and provides bootstrap context with tool mapping.
+
+3. Run **`sonar auth login`** (see [Prerequisites](#prerequisites) table), or load the `sonar-integrate` skill for a guided setup flow.
+
+Skills are the same across agents. Load them via OpenCode's `skill` tool (e.g. `sonar-list-issues`, `sonar-quality-gate`) or ask naturally.
+
+Full setup guide and troubleshooting: **[`.opencode/INSTALL.md`](.opencode/INSTALL.md)**.
 
 ---
 
